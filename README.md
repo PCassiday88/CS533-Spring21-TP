@@ -14,3 +14,6 @@ When complete with the card, move to the NEEDS REVIEW column
 Another member will review the work and then sign off on the card like this (Assigned to Pat Cassiday, Reviewed by thisGuy) 
 and move the card to the DONE column
 Add cards if you feel the need to
+
+FOR SOURCE CODE:
+Create your own branch to hold the PE assignments after they have been graded. Let me know if you have no idea how to do this.

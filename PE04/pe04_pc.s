@@ -16,20 +16,26 @@
 msg1:   .asciiz "Choose a number between 1-8 "
 peg:    .asciiz "||\n"
 disk:   .asciiz "="
-base:   .asciiz "X"
+base:   .asciiz "_"
 star:   .asciiz "*"
 tip:    .asciiz "^\n"
 endl:   .asciiz "\n"
         .text 
 
 
+checkInput: # This method will make sure the input was an int between 1 and 8
+        addi    $sp, $sp, -8                    # Saving t9 and ra
+        sw      $t9, 4($sp)
+        sw      $ra, 0($sp)
+        ble     $a0, $zero, main
+        bgt     $a0, $s7, main
+        move    $t9, $a0
+        li      $t8, 30
+        j       showAllDisks
+
+
 showAllDisks:
 # Display multiple pegs from largest to smallest
-#        addi    $sp, $sp, -8                    # Saving t9 and ra
-#        sw      $t9, 4($sp)
-#        sw      $ra, 0($sp)
-#        ble     $a0, $zero, exit
-#        move    $t9, $a0        # $t9 has the int given as param
         li      $t0, 1          # Has the number of markers in disk                        
         move    $t1, $t9        # Has the number of disks left to add
         li      $t2, 1          # Used to increment markers before moving to next disk
@@ -57,36 +63,48 @@ nextDisk:
 
 whiteSpace:
         beq     $t9, $t2, nextPeg
-        sub     $t3, $t9, $t2
+        sub     $t3, $t8, $t2
         j       innerWhiteSpace
 
     innerWhiteSpace:
-            beq     $t3, $zero, pegSep
+            beq     $t3, $zero, nextDisk
             li      $v0, 4
             la      $a0, star
             syscall
             addi    $t3, -1
             j       innerWhiteSpace
-                pegSep:
-                li      $v0, 4
-                la      $a0, star 
-                syscall
-                li      $v0, 4
-                la      $a0, star 
-                syscall
-                j       nextDisk
 
 nextPeg:
-        li      $v0, 4
-        la      $a0, star 
-        syscall
-        li      $v0, 4
-        la      $a0, star 
-        syscall
-        j       restoreStack
+        sub     $t3, $t8, $t2
+        j       residualWhiteSpace
+
+        residualWhiteSpace:
+            beq     $t3, $zero, continue
+            li      $v0, 4
+            la      $a0, star
+            syscall
+            addi    $t3, -1
+            j       residualWhiteSpace
+        continue:
+            li      $v0, 4
+            la      $a0, endl
+            syscall
+            j       printBase
+    
+        printBase:
+                beq     $t8, $zero, restoreStack
+                li      $v0, 4
+                la      $a0, base
+                syscall
+                addi    $t8, -1
+                j       printBase 
         
 
 restoreStack:
+        li      $v0, 4
+        la      $a0, endl
+        syscall
+
         lw      $t9, 4($sp)
         lw      $ra, 0($sp)
         addi    $sp, $sp, 8
@@ -113,25 +131,6 @@ main:
 
         move    $a0, $v0
         jal     checkInput
-        
-        # move    $a0, $t9 
-        # jal     showAllDisks
-
-checkInput: # This method will make sure the input was an int between 1 and 8
-        addi    $sp, $sp, -8                    # Saving t9 and ra
-        sw      $t9, 4($sp)
-        sw      $ra, 0($sp)
-        ble     $a0, $zero, main
-        bgt     $a0, $s7, main
-        move    $t9, $a0
-        j       showAllDisks
-
-
-
-        # li      $t4, 3
-        # mult    $t4, $a0
-        # mflo    $t4  
-        # addi    $t4, 4
         
 
 exit:

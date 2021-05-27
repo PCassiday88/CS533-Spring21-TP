@@ -24,80 +24,186 @@ endl:   .asciiz "\n"
 
 
 checkInput: # This method will make sure the input was an int between 1 and 8
-        addi    $sp, $sp, -8                    # Saving t9 and ra
-        sw      $t9, 4($sp)
-        sw      $ra, 0($sp)
         ble     $a0, $zero, main
-        bgt     $a0, $s7, main
+        bgt     $a0, $s7, main 
         move    $t9, $a0
         li      $t8, 30
-        j       showAllDisks
+        j       prepStack
+
+prepStack:
+        # li      $t4, -4
+        # mult    $t9, $t4 
+        # mflo    $t3
+        # move    $t4, $t3
+        # addi    $t4, -8 
+
+#        add     $sp, $sp, $t4
+        addi    $sp, $sp, -40
+        sw      $ra, 0($sp)                    
+        sw      $t9, 4($sp)
+        j       storeDisks
+    storeDisks:
+            sw      $s0, 8($sp) 
+            sw      $s1, 12($sp) 
+            sw      $s2, 16($sp) 
+            sw      $s3, 20($sp) 
+            sw      $s4, 24($sp) 
+            sw      $s5, 28($sp) 
+            sw      $s6, 32($sp) 
+            sw      $s7, 36($sp) 
+            j       showAllDisks
 
 
 showAllDisks:
 # Display multiple pegs from largest to smallest
         li      $t0, 1          # Has the number of markers in disk                        
-        move    $t1, $t9        # Has the number of disks left to add
-        li      $t2, 1          # Used to increment markers before moving to next disk
-        j       showDisk
+        li      $t1, 2          # Has the number of disks left to add
+        li      $t2, 3          # Used to increment markers before moving to next disk
+ #       j       showDisk1
+        move    $a1, $t9
+        j       determineStack1
+
+# determineStackS0:
+#         li      $t7, 10
+#         div     $s0, $t7 
+#         mfhi    $t6
+#         mflo    $t5
+#         move    $s0, $t5
+#         beq     $t6, $t0, peg1
+#         beq     $t6, $t1, peg2
+#         beq     $t6, $t2, peg3
+#         addi    $a1, -1
+#         beq     $a1, $zero, determineOrder
+# determineStack1:
+#         div     $s1, $t7 
+#         mfhi    $t6
+#         mflo    $t5
+#         move    $s1, $t5
+#         beq     $t6, $t0, peg1
+#         beq     $t6, $t1, peg2
+#         beq     $t6, $t2, peg3
+#         addi    $a1, -1
+#         beq     $a1, $zero, determineOrder
+# determineStack2:
+#         div     $s2, $t7 
+#         mfhi    $t6
+#         mflo    $t5
+#         move    $s2, $t5
+#         beq     $t6, $t0, peg1
+#         beq     $t6, $t1, peg2
+#         beq     $t6, $t2, peg3
+#         addi    $a1, -1
+#         beq     $a1, $zero, determineOrder
+# determineStack3:
+#         div     $s3, $t7 
+#         mfhi    $t6
+#         mflo    $t5
+#         move    $s3, $t5
+#         beq     $t6, $t0, peg1
+#         beq     $t6, $t1, peg2
+#         beq     $t6, $t2, peg3
+#         addi    $a1, -1
+#         beq     $a1, $zero, determineOrder
+# determineStack4:
+#         div     $s4, $t7 
+#         mfhi    $t6
+#         mflo    $t5
+#         move    $s4, $t5
+#         beq     $t6, $t0, peg1
+#         beq     $t6, $t1, peg2
+#         beq     $t6, $t2, peg3
+#         addi    $a1, -1
+#         beq     $a1, $zero, determineOrder
+# determineStack5:
+#         div     $s5, $t7 
+#         mfhi    $t6
+#         mflo    $t5
+#         move    $s5, $t5 
+#         beq     $t6, $t0, peg1
+#         beq     $t6, $t1, peg2
+#         beq     $t6, $t2, peg3
+#         addi    $a1, -1
+#         beq     $a1, $zero, determineOrder
+# determineStack6:
+#         div     $s6, $t7 
+#         mfhi    $t6
+#         mflo    $t5
+#         move    $s6, $t5 
+#         beq     $t6, $t0, peg1
+#         beq     $t6, $t1, peg2
+#         beq     $t6, $t2, peg3
+#         addi    $a1, -1
+#         beq     $a1, $zero, determineOrder
+# determineStack7:
+#         div     $s1, $t7 
+#         mfhi    $t6
+#         mflo    $t5
+#         move    $s7, $t5 
+#         beq     $t6, $t0, peg1
+#         beq     $t6, $t1, peg2
+#         beq     $t6, $t2, peg3
+#         j       determineWinner
+
+# peg1:
 
 
-showDisk:
-        beq     $t0, $zero, whiteSpace 
-        li      $v0, 4
-        la      $a0, disk
-        syscall
-        addi    $t0, -1
-        j       showDisk
-#Decrement $t1 to move to the next disk and set $t0 to that value
-nextDisk:
-        beq     $t1, $t0, restoreStack
-        addi    $t1, -1
-        addi    $t2, 1
-        move    $t0, $t2 
-        #Display a new line
-        li      $v0, 4
-        la      $a0, endl
-        syscall
-        j       showDisk
 
-whiteSpace:
-        beq     $t9, $t2, nextPeg
-        sub     $t3, $t8, $t2
-        j       innerWhiteSpace
+#showDisk1:
+#         beq     $t0, $zero, whiteSpace 
+#         li      $v0, 4
+#         la      $a0, disk
+#         syscall
+#         addi    $t0, -1
+#         j       showDisk
+# #Decrement $t1 to move to the next disk and set $t0 to that value
+# nextDisk:
+#         beq     $t1, $t0, restoreStack
+#         addi    $t1, -1
+#         addi    $t2, 1
+#         move    $t0, $t2 
+#         #Display a new line
+#         li      $v0, 4
+#         la      $a0, endl
+#         syscall
+#         j       showDisk
 
-    innerWhiteSpace:
-            beq     $t3, $zero, nextDisk
-            li      $v0, 4
-            la      $a0, star
-            syscall
-            addi    $t3, -1
-            j       innerWhiteSpace
+# whiteSpace:
+#         beq     $t9, $t2, nextPeg
+#         sub     $t3, $t8, $t2
+#         j       innerWhiteSpace
 
-nextPeg:
-        sub     $t3, $t8, $t2
-        j       residualWhiteSpace
+#     innerWhiteSpace:
+#             beq     $t3, $zero, nextDisk
+#             li      $v0, 4
+#             la      $a0, star
+#             syscall
+#             addi    $t3, -1
+#             j       innerWhiteSpace
 
-        residualWhiteSpace:
-            beq     $t3, $zero, continue
-            li      $v0, 4
-            la      $a0, star
-            syscall
-            addi    $t3, -1
-            j       residualWhiteSpace
-        continue:
-            li      $v0, 4
-            la      $a0, endl
-            syscall
-            j       printBase
+# nextPeg:
+#         sub     $t3, $t8, $t2
+#         j       residualWhiteSpace
+
+#         residualWhiteSpace:
+#             beq     $t3, $zero, continue
+#             li      $v0, 4
+#             la      $a0, star
+#             syscall
+#             addi    $t3, -1
+#             j       residualWhiteSpace
+#         continue:
+#             li      $v0, 4
+#             la      $a0, endl
+#             syscall
+#             j       printBase
     
-        printBase:
-                beq     $t8, $zero, restoreStack
-                li      $v0, 4
-                la      $a0, base
-                syscall
-                addi    $t8, -1
-                j       printBase 
+#         printBase:
+#                 beq     $t8, $zero, restoreStack
+#                 li      $v0, 4
+#                 la      $a0, base
+#                 syscall
+#                 addi    $t8, -1
+#                 j       printBase 
         
 
 restoreStack:
@@ -113,14 +219,14 @@ restoreStack:
 
 main:
         # Load $s0-$s7 with the possible disk ints
-        li      $s0, 1
-        li      $s1, 2
-        li      $s2, 3
-        li      $s3, 4
-        li      $s4, 5
-        li      $s5, 6
-        li      $s6, 7
-        li      $s7, 8
+        li      $s0, 11
+        li      $s1, 12
+        li      $s2, 13
+        li      $s3, 14
+        li      $s4, 15
+        li      $s5, 16
+        li      $s6, 17
+        li      $s7, 18
 
         li      $v0, 4
         la      $a0, msg1

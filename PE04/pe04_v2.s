@@ -1,62 +1,82 @@
         .data
 msg1:   .asciiz "Choose a number between 1-8: "
-disk:   .asciiz "="
-space:  .asciiz " "
-endl:   .asciiz "\n"
+moved:  .asciiz "\nMoved disk number "
+from:   .asciiz " from peg labeled "
+to:     .asciiz " to peg "
         .text
 
 
+hanoi_tower:
+        addi    $sp, $sp, -20
+        sw      $ra, 0($sp)
+        sw      $s0, 4($sp)
+        sw      $s1, 8($sp)
+        sw      $s2, 12($sp)
+        sw      $s3, 16($sp)
 
-checkInput: # This method will make sure the input was an int between 1 and 8
-        li      $a1, 8
-        ble     $a0, $zero, main
-        bgt     $a0, $a1, main 
-        move    $t9, $a0
-        li      $t8, 8
-        j       prepStack
+        # Save the input (n), and the three peg labels in regs s0-s3
+        move    $s0, $a0 
+        move    $s1, $a1 
+        move    $s2, $a2 
+        move    $s3, $a3 
 
-prepStack:
-        addi    $sp, $sp, -8
-        sw      $ra, 0($sp)                    
-        sw      $t9, 4($sp)
-        move    $a0, $t9 
-        j       printBegPeg
+        li      $t1, 1
+        beq     $s0, $t1, output 
 
-printBegPeg:
-        li      $t0, 0 #tried a reg
-        li      $t1, 0 #found a match
-        # finds things that go here or not
-        addi    $t0, 1
-        # Need to increment $t1 at some point
-        beq     $a0, $t1, weHaveAllDisplayed
-        beq     $a0, $t0, printMidPeg
+        outerLoop:
+            addi    $a0, $s0, -1        # Into a0 store n-1
+            move    $a1, $s1 
+            move    $a2, $s3 
+            move    $a3, $s2 
+            jal     hanoi_tower
+            j      output 
 
-printMidPeg:
-        li      $t0, 0
-        # try to find things same way
-        # Need to increment $t1 at some point
-        beq     $a0, $t1, weHaveAllDisplayed
-        beq     $a0, $t0, printEndPeg
+        innerLoop:
+            addi    $a0, $s0, -1 
+            move    $a1, $s3 
+            move    $a2, $s2 
+            move    $a3, $s1 
+            jal     hanoi_tower
 
-printEndPeg:
-        li      $t0, 0
-        # try to find things same way
-        # Need to increment $t1 at some point
-        beq     $a0, $t1, weHaveAllDisplayed
-        beq     $a0, $t0, getNextMove
+        exitTower:
+            lw      $ra, 0($sp)
+            lw      $s0, 4($sp)
+            lw      $s1, 8($sp) 
+            lw      $s2, 12($sp)
+            lw      $s3, 16($sp) 
+            addi    $sp, $sp, 20
+            jr      $ra 
 
+        output:
+            
+            li      $v0, 4
+            la      $a0, moved
+            syscall
+
+            li      $v0, 1
+            move    $a0, $s0 
+            syscall
+
+            li      $v0, 4
+            la      $a0, from 
+            syscall
+
+            li      $v0, 11
+            move    $a0, $s1 
+            syscall
+
+            li      $v0, 4
+            la      $a0, to 
+            syscall
+
+            li      $v0, 11
+            move    $a0, $s2 
+            syscall
+
+            beq     $s0, $t1, exitTower
+            j       innerLoop
 
 main:
-        # Load $s0-$s7 with the possible disk ints
-        li      $s0, 11
-        li      $s1, 12
-        li      $s2, 13
-        li      $s3, 14
-        li      $s4, 15
-        li      $s5, 16
-        li      $s6, 17
-        li      $s7, 18
-
         li      $v0, 4
         la      $a0, msg1
         syscall
@@ -65,7 +85,19 @@ main:
         syscall
 
         move    $a0, $v0
-        jal     checkInput
+
+        # This block confirms that the integer input was between 1-8 or restart main
+        li      $t9, 8
+        ble     $a0, $zero, main
+        bgt     $a0, $t9, main 
+
+        # Name the pegs
+        li      $a1, 'A'
+        li      $a2, 'B'
+        li      $a3, 'C'
+
+        #Call hanoi function
+        jal     hanoi_tower
         
 
 exit:
